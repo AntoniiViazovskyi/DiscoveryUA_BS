@@ -1,4 +1,5 @@
 import { getUserById, getPublicUserById } from '../services/userService.js';
+import { isValidObjectId } from 'mongoose';
 
 export const getUserProfile = async (req, res) => {
   const userId = req.user._id;
@@ -13,6 +14,11 @@ export const getUserProfile = async (req, res) => {
 
 export const getPublicUserProfile = async (req, res) => {
   const { userId } = req.params;
+
+  if (!isValidObjectId(userId)) {
+    return res.status(400).json({ status: 400, message: 'Invalid user ID' });
+  }
+
   const user = await getPublicUserById(userId);
 
   if (!user) {
