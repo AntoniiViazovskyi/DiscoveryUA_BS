@@ -15,6 +15,8 @@ import userRouter from './routes/userRouter.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
 import locationsRoutes from './routes/locationsRoutes.js';
 
+import sessionRoutes from './routes/session.js';
+
 const PORT = process.env.PORT ?? 3000;
 
 const app = express();
@@ -35,6 +37,7 @@ app.use('/api/users', userRouter);
 app.use('/api/users', userLocationsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/locations', locationsRoutes);
+app.use('/api', sessionRoutes);
 app.use(notFoundHandler);
 app.use(errors());
 app.use(errorHandler);
