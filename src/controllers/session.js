@@ -1,17 +1,19 @@
+import { isValidObjectId } from 'mongoose';
+
 import createHttpError from 'http-errors';
 import { Session } from '../models/session.js';
 import {
-  createSessionData,
+  createSession,
   setSessionCookies,
   clearSessionCookies,
-} from '../utils/createSession.js';
+} from '../services/auth.js';
 
-// POST /auth/logout
+//  LOGOUT
 export const logoutController = async (req, res, next) => {
   try {
     const { sessionId } = req.cookies;
 
-    if (sessionId) {
+    if (sessionId && isValidObjectId(sessionId)) {
       await Session.deleteOne({ _id: sessionId });
     }
 
@@ -23,12 +25,12 @@ export const logoutController = async (req, res, next) => {
   }
 };
 
-// POST /auth/refresh
+//  REFRESH
 export const refreshSessionController = async (req, res, next) => {
   try {
     const { sessionId, refreshToken } = req.cookies;
 
-    if (!sessionId || !refreshToken) {
+    if (!sessionId || !refreshToken || !isValidObjectId(sessionId)) {
       throw createHttpError(401, 'Not authorized');
     }
 
@@ -42,17 +44,15 @@ export const refreshSessionController = async (req, res, next) => {
       new Date() > new Date(session.refreshTokenValidUntil);
 
     if (isRefreshTokenExpired) {
-      //  refresh token - видаляємо стару сесію,
-      // клієнт має пройти логін заново.
       await Session.deleteOne({ _id: sessionId });
       clearSessionCookies(res);
       throw createHttpError(401, 'Session expired, please log in again');
     }
 
-    // Ротація: видаляємо стару сесію і створюємо нову.
+    // Ротація: стара сесія видаляється, створюється нова.
     await Session.deleteOne({ _id: sessionId });
 
-    const newSession = await Session.create(createSessionData(session.userId));
+    const newSession = await createSession(session.userId);
 
     setSessionCookies(res, newSession);
 
