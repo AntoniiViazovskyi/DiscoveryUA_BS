@@ -29,9 +29,10 @@ export const getLocationFeedbacks = async (req, res) => {
   }
 
   const feedbacks = Array.isArray(location.feedbacksId) ? location.feedbacksId : [];
-  const total = feedbacks.length;
+  const visibleFeedbacks = feedbacks.filter((item) => item?.isApproved === true);
+  const total = visibleFeedbacks.length;
   const totalPages = Math.ceil(total / limit);
-  const paginatedFeedbacks = feedbacks.slice((page - 1) * limit, page * limit);
+  const paginatedFeedbacks = visibleFeedbacks.slice((page - 1) * limit, page * limit);
 
   res.status(200).json({
     data: paginatedFeedbacks,

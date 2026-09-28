@@ -11,9 +11,11 @@ test('GET /api/feedbacks returns paginated feedbacks for a location', async () =
   const originalFindById = Location.findById;
   const locationId = '507f1f77bcf86cd799439011';
   const allFeedbacks = [
-    { _id: '1', userName: 'Anna', rate: 5, description: 'Perfect stay' },
-    { _id: '2', userName: 'Bohdan', rate: 4, description: 'Nice place' },
-    { _id: '3', userName: 'Maria', rate: 5, description: 'Loved the view' },
+    { _id: '1', userName: 'Anna', rate: 5, description: 'Perfect stay', isApproved: true },
+    { _id: '2', userName: 'Bohdan', rate: 4, description: 'Nice place', isApproved: false },
+    { _id: '3', userName: 'Maria', rate: 5, description: 'Loved the view', isApproved: true },
+    { _id: '4', userName: 'Oleh', rate: 3, description: 'Older feedback' },
+    { _id: '5', userName: 'Iryna', rate: 5, description: 'Great location', isApproved: true },
   ];
 
   Location.findById = (id) => {
@@ -32,19 +34,19 @@ test('GET /api/feedbacks returns paginated feedbacks for a location', async () =
   try {
     const { port } = server.address();
     const response = await fetch(
-      `http://127.0.0.1:${port}/api/feedbacks?locationId=${locationId}&page=1&limit=2`,
+      `http://127.0.0.1:${port}/api/feedbacks?locationId=${locationId}&page=2&limit=2`,
     );
 
     assert.equal(response.status, 200);
 
     const body = await response.json();
 
-    assert.equal(body.page, 1);
+    assert.equal(body.page, 2);
     assert.equal(body.limit, 2);
     assert.equal(body.total, 3);
-    assert.equal(body.data.length, 2);
-    assert.equal(body.data[0].userName, 'Anna');
-    assert.equal(body.data[1].userName, 'Bohdan');
+    assert.equal(body.totalPages, 2);
+    assert.equal(body.data.length, 1);
+    assert.equal(body.data[0].userName, 'Iryna');
   } finally {
     server.close();
     Location.findById = originalFindById;
