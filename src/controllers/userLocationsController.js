@@ -17,7 +17,9 @@ export const getUserLocations = async (req, res, next) => {
     }
 
     if (!Number.isInteger(limit) || limit < 1 || limit > 50) {
-      return res.status(400).json({ message: 'limit must be between 1 and 50' });
+      return res
+        .status(400)
+        .json({ message: 'limit must be between 1 and 50' });
     }
 
     const skip = (page - 1) * limit;
