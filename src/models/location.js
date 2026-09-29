@@ -16,6 +16,7 @@ const locationSchema = new Schema(
     region: String,
     rate: Number,
     description: String,
+    advantages: [String],
     coordinates: coordinatesSchema,
     ownerId: {
       type: Schema.Types.ObjectId,
