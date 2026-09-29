@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
-
+import { Session } from '../models/session.js';
 import { User } from '../models/user.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 
@@ -40,7 +40,7 @@ export const loginUser = async (req, res) => {
   if (!isPasswordCorrect) {
     throw createHttpError(401, 'Invalid email or password');
   }
-
+  await Session.deleteMany({ userId: user._id });
   const session = await createSession(user._id);
 
   setSessionCookies(res, session);
