@@ -10,9 +10,12 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import userLocationsRoutes from './routes/userLocationsRoutes.js';
 import userRouter from './routes/userRouter.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
-import locationRoutes from './routes/locationRoutes.js';
+import locationsRoutes from './routes/locationsRoutes.js';
+
+import sessionRoutes from './routes/session.js';
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -31,9 +34,10 @@ app.use(cookieParser());
 
 app.use('/api', authRoutes);
 app.use('/api/users', userRouter);
+app.use('/api/users', userLocationsRoutes);
 app.use('/api/categories', categoriesRoutes);
-app.use('/api/locations', locationRoutes);
-
+app.use('/api/locations', locationsRoutes);
+app.use('/api', sessionRoutes);
 app.use(notFoundHandler);
 app.use(errors());
 app.use(errorHandler);
