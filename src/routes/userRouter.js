@@ -1,19 +1,22 @@
 import { Router } from 'express';
 import {
   getUserProfile,
-<<<<<<< HEAD
   updateUserProfile,
-=======
-  getPublicUserProfile,
->>>>>>> origin/main
 } from '../controllers/userController.js';
 import { authenticate } from '../middleware/authenticate.js';
+import { validateBody } from '../middleware/validateBody.js';
+import { updateUserSchema } from '../validations/userValidation.js';
 
 const userRouter = Router();
 
 userRouter.get('/me', authenticate, getUserProfile);
-userRouter.patch('/me', authenticate, updateUserProfile);
+userRouter.patch(
+  '/me',
+  authenticate,
+  validateBody(updateUserSchema),
+  updateUserProfile,
+);
 
-userRouter.get('/:userId', getPublicUserProfile);
+userRouter.get('/:userId', getUserProfile);
 
 export default userRouter;
