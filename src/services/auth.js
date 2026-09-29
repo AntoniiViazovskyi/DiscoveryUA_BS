@@ -13,13 +13,13 @@ export const createSession = (userId) => {
   });
 };
 
-export const setSessionCookies = (res, session) => {
-  const cookieOptions = {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-  };
+const cookieOptions = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'none',
+};
 
+export const setSessionCookies = (res, session) => {
   res.cookie('accessToken', session.accessToken, {
     ...cookieOptions,
     maxAge: FIFTEEN_MINUTES,
@@ -32,4 +32,10 @@ export const setSessionCookies = (res, session) => {
     ...cookieOptions,
     maxAge: ONE_DAY,
   });
+};
+
+export const clearSessionCookies = (res) => {
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+  res.clearCookie('sessionId', cookieOptions);
 };
