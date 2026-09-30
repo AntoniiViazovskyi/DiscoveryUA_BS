@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getUserProfile,
+  getUserByIdController,
   updateUserProfile,
 } from '../controllers/userController.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -17,6 +18,6 @@ userRouter.patch(
   updateUserProfile,
 );
 
-userRouter.get('/:userId', getUserProfile);
+userRouter.get('/:userId', getUserByIdController);
 
 export default userRouter;
