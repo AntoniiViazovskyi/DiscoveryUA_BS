@@ -1,4 +1,6 @@
 import createHttpError from 'http-errors';
+
+import { Location } from '../models/location.js';
 import {
   getUserById,
   getPublicUserById,
@@ -56,6 +58,34 @@ export const updateUserProfile = async (req, res, next) => {
     if (error.code === 11000) {
       return next(createHttpError(409, 'Email in use'));
     }
+    next(error);
+  }
+};
+
+export const getUserLocations = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { page, limit } = req.query;
+
+    const skip = (page - 1) * limit;
+    const [locations, total] = await Promise.all([
+      Location.find({ ownerId: userId })
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Location.countDocuments({ ownerId: userId }),
+    ]);
+
+    return res.status(200).json({
+      data: locations,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit) || 0,
+      userId,
+    });
+  } catch (error) {
     next(error);
   }
 };

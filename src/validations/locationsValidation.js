@@ -1,5 +1,9 @@
 import { Joi, Segments } from 'celebrate';
 
+const locationIdParams = Joi.object({
+  locationId: Joi.string().hex().length(24).required(),
+});
+
 export const getAllLocationsSchema = {
   [Segments.QUERY]: Joi.object({
     page: Joi.number().integer().min(1).default(1),
@@ -16,11 +20,8 @@ export const getAllLocationsSchema = {
 const locationFields = {
   name: Joi.string().trim().min(3).max(96),
   description: Joi.string().trim().min(20).max(6000),
-  locationType: Joi.string().trim().min(1).max(64),
+  type: Joi.string().trim().min(1).max(64),
   region: Joi.string().trim().min(1).max(64),
-  image: Joi.string()
-    .uri({ scheme: ['http', 'https'] })
-    .max(500),
   advantages: Joi.array().items(Joi.string().trim().min(1).max(100)).max(20),
   coordinates: Joi.object({
     lat: Joi.number().min(-90).max(90).required(),
@@ -33,14 +34,16 @@ export const createLocationSchema = {
     ...locationFields,
     name: locationFields.name.required(),
     description: locationFields.description.required(),
-    locationType: locationFields.locationType.required(),
+    type: locationFields.type.required(),
     region: locationFields.region.required(),
-    image: locationFields.image.required(),
   }).unknown(false),
 };
 
+export const getLocationByIdSchema = {
+  [Segments.PARAMS]: locationIdParams,
+};
+
 export const updateLocationSchema = {
-  [Segments.BODY]: Joi.object({ ...locationFields })
-    .min(1)
-    .unknown(false),
+  [Segments.PARAMS]: locationIdParams,
+  [Segments.BODY]: Joi.object({ ...locationFields }).unknown(false),
 };

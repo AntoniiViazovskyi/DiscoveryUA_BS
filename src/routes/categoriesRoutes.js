@@ -1,10 +1,13 @@
-import { Router } from "express";
-import { getAllLocationTypes, getAllRegions } from "../controllers/categoriesController.js";
+import { Router } from 'express';
 
+import {
+  getAllLocationTypes,
+  getAllRegions,
+} from '../controllers/categoriesController.js';
 
 const categoriesRoutes = Router();
 
 categoriesRoutes.get('/regions', getAllRegions);
-categoriesRoutes.get('/location_types', getAllLocationTypes)
+categoriesRoutes.get('/types', getAllLocationTypes);
 
 export default categoriesRoutes;

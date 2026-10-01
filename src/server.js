@@ -10,13 +10,11 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { logger } from './middleware/logger.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import authRoutes from './routes/authRoutes.js';
-import userLocationsRoutes from './routes/userLocationsRoutes.js';
-import userRouter from './routes/userRouter.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import locationsRoutes from './routes/locationsRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
-import sessionRoutes from './routes/session.js';
+import userRoutes from './routes/userRoutes.js';
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -33,14 +31,12 @@ app.use(logger);
 app.use(cors());
 app.use(cookieParser());
 
-app.use('/api', authRoutes);
-app.use('/api/users', userRouter);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploadRoutes);
-app.use('/api/users', userLocationsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api/locations', locationsRoutes);
-app.use('/api', sessionRoutes);
 app.use(notFoundHandler);
 app.use(errors());
 app.use(errorHandler);

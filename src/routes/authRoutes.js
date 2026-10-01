@@ -1,7 +1,14 @@
 import { celebrate } from 'celebrate';
 import { Router } from 'express';
 
-import { loginUser, registerUser } from '../controllers/authController.js';
+import {
+  getSession,
+  loginUser,
+  logoutUser,
+  refreshUserSession,
+  registerUser,
+} from '../controllers/authController.js';
+import { authenticate } from '../middleware/authenticate.js';
 import {
   loginUserSchema,
   registerUserSchema,
@@ -10,15 +17,19 @@ import {
 const authRoutes = Router();
 
 authRoutes.post(
-  '/auth/register',
+  '/register',
   celebrate(registerUserSchema, { abortEarly: false }),
   registerUser,
 );
 
 authRoutes.post(
-  '/auth/login',
+  '/login',
   celebrate(loginUserSchema, { abortEarly: false }),
   loginUser,
 );
+
+authRoutes.post('/logout', authenticate, logoutUser);
+authRoutes.post('/refresh', refreshUserSession);
+authRoutes.get('/session', authenticate, getSession);
 
 export default authRoutes;

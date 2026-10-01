@@ -3,25 +3,32 @@ import { Router } from 'express';
 
 import {
   createLocation,
+  getAllLocations,
   getLocationById,
   updateLocation,
 } from '../controllers/locationController.js';
-import { getAllLocations } from '../controllers/locationsController.js';
 import { authenticate } from '../middleware/authenticate.js';
+import { uploadImage } from '../middleware/upload.js';
 import {
   createLocationSchema,
   getAllLocationsSchema,
+  getLocationByIdSchema,
   updateLocationSchema,
 } from '../validations/locationsValidation.js';
 
 const locationsRoutes = Router();
 
 locationsRoutes.get('/', celebrate(getAllLocationsSchema), getAllLocations);
-locationsRoutes.get('/:locationId', getLocationById);
+locationsRoutes.get(
+  '/:locationId',
+  celebrate(getLocationByIdSchema),
+  getLocationById,
+);
 
 locationsRoutes.post(
   '/',
   authenticate,
+  uploadImage.single('images'),
   celebrate(createLocationSchema, { abortEarly: false }),
   createLocation,
 );
@@ -29,6 +36,7 @@ locationsRoutes.post(
 locationsRoutes.patch(
   '/:locationId',
   authenticate,
+  uploadImage.single('images'),
   celebrate(updateLocationSchema, { abortEarly: false }),
   updateLocation,
 );
