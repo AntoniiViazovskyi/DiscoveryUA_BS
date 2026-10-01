@@ -15,7 +15,6 @@ import userRouter from './routes/userRouter.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 import locationsRoutes from './routes/locationsRoutes.js';
-import feedbackRoutes from './routes/feedbackRoutes.js';
 
 import sessionRoutes from './routes/session.js';
 
