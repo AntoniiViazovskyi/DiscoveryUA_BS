@@ -26,8 +26,6 @@
     "express": "^5.2.1",
     "handlebars": "^4.7.9",
     "http-errors": "^2.0.1",
-    "joi": "^18.2.9",
-    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.4",
     "multer": "^2.4.0",
     "nodemailer": "^10.0.10",
