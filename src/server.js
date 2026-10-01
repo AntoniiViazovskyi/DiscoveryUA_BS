@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import userLocationsRoutes from './routes/userLocationsRoutes.js';
 import userRouter from './routes/userRouter.js';
 import categoriesRoutes from './routes/categoriesRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 import locationsRoutes from './routes/locationsRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
 
@@ -37,6 +38,7 @@ app.use('/api', authRoutes);
 app.use('/api/users', userRouter);
 app.use('/api/users', userLocationsRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api/locations', locationsRoutes);
 app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api', sessionRoutes);
