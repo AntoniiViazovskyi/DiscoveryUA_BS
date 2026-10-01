@@ -1,5 +1,9 @@
 import createHttpError from 'http-errors';
-import { getUserById, updateUser } from '../services/userService.js';
+import {
+  getUserById,
+  getPublicUserById,
+  updateUser,
+} from '../services/userService.js';
 
 export const getUserProfile = async (req, res, next) => {
   try {
@@ -18,7 +22,8 @@ export const getUserProfile = async (req, res, next) => {
 export const getUserByIdController = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    const user = await getUserById(userId);
+
+    const user = await getPublicUserById(userId);
 
     if (!user) {
       throw createHttpError(404, 'User not found');
@@ -33,7 +38,9 @@ export const getUserByIdController = async (req, res, next) => {
 export const updateUserProfile = async (req, res, next) => {
   try {
     const userId = req.user._id;
-    const updateData = req.body;
+    const updateData = { ...req.body };
+
+    delete updateData.articlesAmount;
 
     const updatedUser = await updateUser(userId, updateData);
 
@@ -46,6 +53,9 @@ export const updateUserProfile = async (req, res, next) => {
       data: updatedUser,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return next(createHttpError(409, 'Email in use'));
+    }
     next(error);
   }
 };
