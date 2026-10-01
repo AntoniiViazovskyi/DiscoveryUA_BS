@@ -40,7 +40,6 @@ app.use('/api/users', userLocationsRoutes);
 app.use('/api/categories', categoriesRoutes);
 app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api/locations', locationsRoutes);
-app.use('/api/feedbacks', feedbackRoutes);
 app.use('/api', sessionRoutes);
 app.use(notFoundHandler);
 app.use(errors());
