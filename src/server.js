@@ -4,6 +4,7 @@ import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
 
 import { connectMongoDB } from './db/connectMongoDB.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -15,6 +16,7 @@ import feedbackRoutes from './routes/feedbackRoutes.js';
 import locationsRoutes from './routes/locationsRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import { swaggerSpec } from './swagger.js';
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -30,6 +32,15 @@ app.use(
 app.use(logger);
 app.use(cors());
 app.use(cookieParser());
+
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: 'Travel App API Docs',
+  }),
+);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
