@@ -22,6 +22,7 @@ export const createLocationFeedback = async (feedbackData) =>
 
     await feedback.save({ session });
     location.feedbacksId.push(feedback._id);
+    location.feedbacksCount = location.feedbacksId.length;
     await location.save({ session });
 
     return feedback;

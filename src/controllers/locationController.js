@@ -43,11 +43,13 @@ export const getAllLocations = async (req, res) => {
     locationsQuery.where('rate').gte(Number(rate));
   }
 
-  const sortDirection = sortOrder === 'asc' ? 1 : -1;
+  const sortDirection =
+    sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
+  const sortField = sortBy === 'popularity' ? 'feedbacksCount' : sortBy;
   const [totalLocations, locations] = await Promise.all([
     locationsQuery.clone().countDocuments(),
     locationsQuery
-      .sort({ [sortBy]: sortDirection })
+      .sort({ [sortField]: sortDirection })
       .skip(skip)
       .limit(limit),
   ]);
