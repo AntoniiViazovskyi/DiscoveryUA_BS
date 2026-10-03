@@ -43,8 +43,7 @@ export const getAllLocations = async (req, res) => {
     locationsQuery.where('rate').gte(Number(rate));
   }
 
-  const sortDirection =
-    sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
+  const sortDirection = sortOrder === 'desc' ? -1 : 1;
   const sortField = sortBy === 'popularity' ? 'feedbacksCount' : sortBy;
   const [totalLocations, locations] = await Promise.all([
     locationsQuery.clone().countDocuments(),
