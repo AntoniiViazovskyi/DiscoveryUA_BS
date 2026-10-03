@@ -129,6 +129,9 @@ export const swaggerSpec = {
             type: 'array',
             items: objectId,
           },
+          feedbacksCount: { type: 'integer', minimum: 0, example: 8 },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
       Feedback: {
@@ -139,6 +142,8 @@ export const swaggerSpec = {
           description: { type: 'string' },
           userName: { type: 'string' },
           isApproved: { type: 'boolean', default: false },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
       Region: {
@@ -149,6 +154,8 @@ export const swaggerSpec = {
           slug: { type: 'string' },
           level: { type: 'string' },
           note: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
       LocationType: {
@@ -158,6 +165,8 @@ export const swaggerSpec = {
           type: { type: 'string' },
           slug: { type: 'string' },
           shortDescription: { type: 'string' },
+          createdAt: { type: 'string', format: 'date-time' },
+          updatedAt: { type: 'string', format: 'date-time' },
         },
       },
       RegisterRequest: {
@@ -474,7 +483,7 @@ export const swaggerSpec = {
             in: 'query',
             schema: {
               type: 'string',
-              enum: ['rate', 'name'],
+              enum: ['rate', 'name', 'createdAt', 'popularity'],
               default: 'rate',
             },
           },

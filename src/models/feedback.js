@@ -7,7 +7,7 @@ const feedbackSchema = new Schema(
     userName: String,
     isApproved: { type: Boolean, default: false },
   },
-  { versionKey: false },
+  { versionKey: false, timestamps: true },
 );
 
 export const Feedback = model('Feedback', feedbackSchema);

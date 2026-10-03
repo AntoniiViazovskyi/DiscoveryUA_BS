@@ -28,8 +28,13 @@ const locationSchema = new Schema(
         ref: 'Feedback',
       },
     ],
+    feedbacksCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
-  { versionKey: false },
+  { versionKey: false, timestamps: true },
 );
 
 export const Location = model('Location', locationSchema);

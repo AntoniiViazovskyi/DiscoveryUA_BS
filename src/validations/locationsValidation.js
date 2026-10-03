@@ -12,7 +12,9 @@ export const getAllLocationsSchema = {
     type: Joi.string().trim(),
     search: Joi.string().trim().allow(''),
     rate: Joi.number().min(1).max(5),
-    sortBy: Joi.string().valid('rate', 'name').default('rate'),
+    sortBy: Joi.string()
+      .valid('rate', 'name', 'createdAt', 'popularity')
+      .default('rate'),
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
   }),
 };
