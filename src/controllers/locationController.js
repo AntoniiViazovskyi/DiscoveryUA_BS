@@ -1,9 +1,9 @@
 import createHttpError from 'http-errors';
 
 import { Location } from '../models/location.js';
-import { uploadImageToCloudinary } from '../services/cloudinary.js';
 import { LocationType } from '../models/locationType.js';
 import { Region } from '../models/region.js';
+import { uploadImageToCloudinary } from '../services/cloudinary.js';
 
 const escapeRegExp = (value) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -27,9 +27,16 @@ export const getAllLocations = async (req, res) => {
   if (region) {
     locationsQuery.where('region').equals(region);
   }
+
   if (type) {
-    locationsQuery.where('locationType').equals(type);
+    const types = type
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    locationsQuery.where('locationType').in(types);
   }
+
   if (search) {
     const searchRegex = new RegExp(escapeRegExp(search), 'i');
 
@@ -68,10 +75,9 @@ export const getAllLocations = async (req, res) => {
   if (rate !== undefined) {
     locationsQuery.where('rate').gte(Number(rate));
   }
-  const sortDirection = sortOrder === 'desc' ? -1 : 1;
 
-  // const sortDirection =
-  //   sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
+  const sortDirection =
+    sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
 
   const sortField = ['popularity', 'feedbackCount'].includes(sortBy)
     ? 'feedbacksCount'
