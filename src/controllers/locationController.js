@@ -27,7 +27,12 @@ export const getAllLocations = async (req, res) => {
   }
 
   if (type) {
-    locationsQuery.where('locationType').equals(type);
+    const types = type
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    locationsQuery.where('locationType').in(types);
   }
 
   if (search) {
@@ -45,7 +50,9 @@ export const getAllLocations = async (req, res) => {
 
   const sortDirection =
     sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
-  const sortField = sortBy === 'popularity' ? 'feedbacksCount' : sortBy;
+  const sortField = ['popularity', 'feedbackCount'].includes(sortBy)
+    ? 'feedbacksCount'
+    : sortBy;
   const [totalLocations, locations] = await Promise.all([
     locationsQuery.clone().countDocuments(),
     locationsQuery
@@ -67,7 +74,7 @@ export const getLocationById = async (req, res) => {
   const { locationId } = req.params;
   const location = await Location.findById(locationId).populate(
     'ownerId',
-    'name avatarUrl',
+    'name username avatarUrl',
   );
 
   if (!location) {

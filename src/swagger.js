@@ -80,6 +80,7 @@ export const swaggerSpec = {
           name: { type: 'string', example: 'Anton' },
           avatarUrl: { type: 'string', format: 'uri' },
           articlesAmount: { type: 'integer', example: 2 },
+          isLoggedIn: { type: 'boolean', default: false },
           username: { type: 'string', example: 'traveller' },
           email: {
             type: 'string',
@@ -97,6 +98,7 @@ export const swaggerSpec = {
           username: { type: 'string' },
           avatarUrl: { type: 'string', format: 'uri' },
           articlesAmount: { type: 'integer' },
+          isLoggedIn: { type: 'boolean', default: false },
         },
       },
       Coordinates: {
@@ -471,7 +473,12 @@ export const swaggerSpec = {
           { $ref: '#/components/parameters/Page' },
           { $ref: '#/components/parameters/Limit' },
           { name: 'region', in: 'query', schema: { type: 'string' } },
-          { name: 'type', in: 'query', schema: { type: 'string' } },
+          {
+            name: 'type',
+            in: 'query',
+            description: 'One type or a comma-separated list of type slugs.',
+            schema: { type: 'string', example: 'park,beach' },
+          },
           { name: 'search', in: 'query', schema: { type: 'string' } },
           {
             name: 'rate',
@@ -483,7 +490,14 @@ export const swaggerSpec = {
             in: 'query',
             schema: {
               type: 'string',
-              enum: ['rate', 'name', 'createdAt', 'popularity'],
+              enum: [
+                'rate',
+                'name',
+                'createdAt',
+                'feedbacksCount',
+                'feedbackCount',
+                'popularity',
+              ],
               default: 'rate',
             },
           },

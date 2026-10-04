@@ -13,7 +13,14 @@ export const getAllLocationsSchema = {
     search: Joi.string().trim().allow(''),
     rate: Joi.number().min(1).max(5),
     sortBy: Joi.string()
-      .valid('rate', 'name', 'createdAt', 'popularity')
+      .valid(
+        'rate',
+        'name',
+        'createdAt',
+        'feedbacksCount',
+        'feedbackCount',
+        'popularity',
+      )
       .default('rate'),
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
   }),

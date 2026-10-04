@@ -7,6 +7,10 @@ const userSchema = new Schema(
     name: String,
     avatarUrl: String,
     articlesAmount: Number,
+    isLoggedIn: {
+      type: Boolean,
+      default: false,
+    },
     username: {
       type: String,
       minLength: 3,

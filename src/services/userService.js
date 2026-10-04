@@ -8,7 +8,7 @@ export const getUserById = async (userId) => {
 
 export const getPublicUserById = async (userId) => {
   return await User.findById(userId).select(
-    'name username avatarUrl articlesAmount',
+    'name username avatarUrl articlesAmount isLoggedIn',
   );
 };
 
