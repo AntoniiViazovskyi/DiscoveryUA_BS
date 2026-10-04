@@ -27,34 +27,56 @@ export const getAllLocations = async (req, res) => {
   if (region) {
     locationsQuery.where('region').equals(region);
   }
-
   if (type) {
-    const types = type
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    locationsQuery.where('locationType').in(types);
+    locationsQuery.where('locationType').equals(type);
   }
-
   if (search) {
-    locationsQuery.where({
-      name: {
-        $regex: escapeRegExp(search),
-        $options: 'i',
+    const searchRegex = new RegExp(escapeRegExp(search), 'i');
+
+    const [regions, locationTypes] = await Promise.all([
+      Region.find({
+        region: searchRegex,
+      }).select('slug'),
+
+      LocationType.find({
+        type: searchRegex,
+      }).select('slug'),
+    ]);
+
+    const regionSlugs = regions.map((item) => item.slug);
+    const typeSlugs = locationTypes.map((item) => item.slug);
+
+    locationsQuery.or([
+      {
+        name: {
+          $regex: searchRegex,
+        },
       },
-    });
+      {
+        region: {
+          $in: regionSlugs,
+        },
+      },
+      {
+        locationType: {
+          $in: typeSlugs,
+        },
+      },
+    ]);
   }
 
   if (rate !== undefined) {
     locationsQuery.where('rate').gte(Number(rate));
   }
+  const sortDirection = sortOrder === 'desc' ? -1 : 1;
 
-  const sortDirection =
-    sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
+  // const sortDirection =
+  //   sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
+
   const sortField = ['popularity', 'feedbackCount'].includes(sortBy)
     ? 'feedbacksCount'
     : sortBy;
+
   const [totalLocations, locations] = await Promise.all([
     locationsQuery.clone().countDocuments(),
     locationsQuery
@@ -62,12 +84,13 @@ export const getAllLocations = async (req, res) => {
       .skip(skip)
       .limit(limit),
   ]);
+  const totalPages = Math.ceil(totalLocations / limit);
 
   res.status(200).json({
     page,
     limit,
     totalLocations,
-    totalPages: Math.ceil(totalLocations / limit),
+    totalPages,
     locations,
   });
 };
