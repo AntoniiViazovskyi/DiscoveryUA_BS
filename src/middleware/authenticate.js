@@ -25,6 +25,7 @@ export const authenticate = async (req, res, next) => {
       new Date() > new Date(session.accessTokenValidUntil);
 
     if (isAccessTokenExpired) {
+      await User.updateOne({ _id: session.userId }, { isLoggedIn: false });
       throw createHttpError(401, 'Access token expired');
     }
 
@@ -33,6 +34,12 @@ export const authenticate = async (req, res, next) => {
     if (!user) {
       throw createHttpError(401, 'User not found');
     }
+
+    if (!user.isLoggedIn) {
+      user.isLoggedIn = true;
+      await user.save();
+    }
+
     req.user = user;
     next();
   } catch (error) {

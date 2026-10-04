@@ -23,6 +23,7 @@ export const registerUser = async (req, res) => {
     email: normalizedEmail,
     password: hashedPassword,
     username,
+    isLoggedIn: true,
   });
 
   const session = await createSession(newUser._id);
@@ -47,6 +48,8 @@ export const loginUser = async (req, res) => {
   }
   await Session.deleteMany({ userId: user._id });
   const session = await createSession(user._id);
+  user.isLoggedIn = true;
+  await user.save();
 
   setSessionCookies(res, session);
 
@@ -55,6 +58,9 @@ export const loginUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   const { sessionId } = req.cookies;
+
+  req.user.isLoggedIn = false;
+  await req.user.save();
 
   if (sessionId && isValidObjectId(sessionId)) {
     await Session.deleteOne({ _id: sessionId });
@@ -78,7 +84,10 @@ export const refreshUserSession = async (req, res) => {
   }
 
   if (new Date() > new Date(session.refreshTokenValidUntil)) {
-    await Session.deleteOne({ _id: sessionId });
+    await Promise.all([
+      Session.deleteOne({ _id: sessionId }),
+      User.updateOne({ _id: session.userId }, { isLoggedIn: false }),
+    ]);
     clearSessionCookies(res);
     throw createHttpError(401, 'Session expired, please log in again');
   }
@@ -86,6 +95,7 @@ export const refreshUserSession = async (req, res) => {
   await Session.deleteOne({ _id: sessionId });
 
   const newSession = await createSession(session.userId);
+  await User.updateOne({ _id: session.userId }, { isLoggedIn: true });
   setSessionCookies(res, newSession);
 
   res.status(200).json({
