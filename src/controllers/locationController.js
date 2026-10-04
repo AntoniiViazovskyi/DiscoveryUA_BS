@@ -22,21 +22,19 @@ export const getAllLocations = async (req, res) => {
   } = req.query;
 
   const skip = (page - 1) * limit;
-  const locationsQuery = Location.find();
+  const andConditions = [];
 
   if (region) {
-    locationsQuery.where('region').equals(region);
+    andConditions.push({ region });
   }
 
   if (type) {
-    const types = type
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-
-    locationsQuery.where('locationType').in(types);
+    andConditions.push({ locationType: type });
   }
 
+  if (rate !== undefined) {
+    andConditions.push({ rate: { $gte: Number(rate) } });
+  }
   if (search) {
     const searchRegex = new RegExp(escapeRegExp(search), 'i');
 
@@ -53,28 +51,15 @@ export const getAllLocations = async (req, res) => {
     const regionSlugs = regions.map((item) => item.slug);
     const typeSlugs = locationTypes.map((item) => item.slug);
 
-    locationsQuery.or([
-      {
-        name: {
-          $regex: searchRegex,
-        },
-      },
-      {
-        region: {
-          $in: regionSlugs,
-        },
-      },
-      {
-        locationType: {
-          $in: typeSlugs,
-        },
-      },
-    ]);
+    andConditions.push({
+      $or: [
+        { name: { $regex: searchRegex } },
+        { region: { $in: regionSlugs } },
+        { locationType: { $in: typeSlugs } },
+      ],
+    });
   }
-
-  if (rate !== undefined) {
-    locationsQuery.where('rate').gte(Number(rate));
-  }
+  const finalFilter = andConditions.length > 0 ? { $and: andConditions } : {};
 
   const sortDirection =
     sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
@@ -84,8 +69,8 @@ export const getAllLocations = async (req, res) => {
     : sortBy;
 
   const [totalLocations, locations] = await Promise.all([
-    locationsQuery.clone().countDocuments(),
-    locationsQuery
+    Location.clone().countDocuments(finalFilter),
+    Location.find(finalFilter)
       .sort({ [sortField]: sortDirection })
       .skip(skip)
       .limit(limit),
