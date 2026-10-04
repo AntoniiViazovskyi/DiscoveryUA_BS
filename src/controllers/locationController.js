@@ -2,6 +2,8 @@ import createHttpError from 'http-errors';
 
 import { Location } from '../models/location.js';
 import { uploadImageToCloudinary } from '../services/cloudinary.js';
+import { LocationType } from '../models/locationType.js';
+import { Region } from '../models/region.js';
 
 const escapeRegExp = (value) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -72,15 +74,23 @@ export const getAllLocations = async (req, res) => {
 
 export const getLocationById = async (req, res) => {
   const { locationId } = req.params;
-  const location = await Location.findById(locationId).populate(
-    'ownerId',
-    'name username avatarUrl',
-  );
+  const location = await Location.findById(locationId)
+    .populate('ownerId', 'name username avatarUrl')
+    .lean();
 
   if (!location) {
     throw createHttpError(404, 'Location not found');
   }
-  res.status(200).json(location);
+
+  const [region, locationType] = await Promise.all([
+    Region.findOne({ slug: location.region }).select('region').lean(),
+    LocationType.findOne({ slug: location.locationType }).select('type').lean(),
+  ]);
+  res.status(200).json({
+    ...location,
+    regionName: region?.region ?? location.region,
+    locationTypeName: locationType?.type ?? location.locationType,
+  });
 };
 
 export const createLocation = async (req, res) => {
