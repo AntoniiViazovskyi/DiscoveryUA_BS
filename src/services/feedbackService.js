@@ -18,6 +18,7 @@ export const createLocationFeedback = async (feedbackData) =>
       rate: feedbackData.rate,
       description: feedbackData.description,
       userName: feedbackData.userName,
+      isApproved: false,
     });
 
     await feedback.save({ session });
