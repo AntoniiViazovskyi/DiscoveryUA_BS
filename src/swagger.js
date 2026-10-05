@@ -664,6 +664,48 @@ export const swaggerSpec = {
         },
       },
     },
+    '/api/feedbacks/latest': {
+      get: {
+        tags: ['Feedbacks'],
+        summary: 'Get the 7 latest approved feedbacks across locations',
+        responses: {
+          200: {
+            description: 'Latest approved feedbacks',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    data: {
+                      type: 'array',
+                      maxItems: 7,
+                      items: {
+                        allOf: [
+                          { $ref: '#/components/schemas/Feedback' },
+                          {
+                            type: 'object',
+                            properties: {
+                              location: {
+                                type: 'object',
+                                properties: {
+                                  _id: objectId,
+                                  name: { type: 'string' },
+                                },
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          ...errorResponses,
+        },
+      },
+    },
     '/api/feedbacks': {
       get: {
         tags: ['Feedbacks'],

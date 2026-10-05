@@ -1,10 +1,46 @@
 import createHttpError from 'http-errors';
 
 import { Location } from '../models/location.js';
-// Registers the Feedback schema so Location.populate('feedbacksId') can resolve it.
-import '../models/feedback.js';
+import { Feedback } from '../models/feedback.js';
 
 import { createLocationFeedback } from '../services/feedbackService.js';
+
+export const getLatestApprovedFeedbacks = async (req, res) => {
+  const feedbacks = await Feedback.aggregate([
+    { $match: { isApproved: true } },
+    {
+      $addFields: {
+        sortDate: { $ifNull: ['$createdAt', { $toDate: '$_id' }] },
+      },
+    },
+    { $sort: { sortDate: -1, _id: -1 } },
+    { $limit: 7 },
+    {
+      $lookup: {
+        from: Location.collection.name,
+        localField: '_id',
+        foreignField: 'feedbacksId',
+        as: 'locations',
+      },
+    },
+    { $unwind: { path: '$locations', preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        rate: 1,
+        description: 1,
+        userName: 1,
+        isApproved: 1,
+        createdAt: { $ifNull: ['$createdAt', { $toDate: '$_id' }] },
+        location: {
+          _id: '$locations._id',
+          name: '$locations.name',
+        },
+      },
+    },
+  ]);
+
+  res.status(200).json({ data: feedbacks });
+};
 
 export const getLocationFeedbacks = async (req, res) => {
   const { locationId } = req.query;
