@@ -81,7 +81,7 @@ export const getAllLocations = async (req, res) => {
     locationsQuery
       .skip(skip)
       .limit(Number(limit))
-      .sort({ [sortField]: sortDirection }),
+      .sort({ [sortField]: sortDirection, _id: 1}),
   ]);
 
   const totalPages = Math.ceil(totalItems / Number(limit));
