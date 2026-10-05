@@ -76,7 +76,7 @@ export const getAllLocations = async (req, res) => {
     ? 'feedbacksCount'
     : sortBy;
 
-  const [totalItems, locations] = await Promise.all([
+  const [totalLocations, locations] = await Promise.all([
     locationsQuery.clone().countDocuments(),
     locationsQuery
       .skip(skip)
@@ -84,12 +84,12 @@ export const getAllLocations = async (req, res) => {
       .sort({ [sortField]: sortDirection, _id: 1}),
   ]);
 
-  const totalPages = Math.ceil(totalItems / Number(limit));
+  const totalPages = Math.ceil(totalLocations / Number(limit));
 
   res.status(200).json({
     page: Number(page),
     limit: Number(limit),
-    totalItems,
+    totalLocations,
     totalPages,
     locations,
   });
