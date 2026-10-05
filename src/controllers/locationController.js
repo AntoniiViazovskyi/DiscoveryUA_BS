@@ -13,30 +13,20 @@ export const getAllLocations = async (req, res) => {
   const {
     page = 1,
     limit = 10,
+    search,
     region,
     type,
-    search,
     rate,
     sortBy = 'rate',
     sortOrder = 'desc',
   } = req.query;
 
   const skip = (page - 1) * limit;
-  const andConditions = [];
 
-  if (region) {
-    andConditions.push({ region });
-  }
+  const locationsQuery = Location.find();
 
-  if (type) {
-    andConditions.push({ locationType: type });
-  }
-
-  if (rate !== undefined) {
-    andConditions.push({ rate: { $gte: Number(rate) } });
-  }
   if (search) {
-    const searchRegex = new RegExp(escapeRegExp(search), 'i');
+    const searchRegex = new RegExp(escapeRegExp(search.trim()), 'i');
 
     const [regions, locationTypes] = await Promise.all([
       Region.find({
@@ -51,15 +41,33 @@ export const getAllLocations = async (req, res) => {
     const regionSlugs = regions.map((item) => item.slug);
     const typeSlugs = locationTypes.map((item) => item.slug);
 
-    andConditions.push({
-      $or: [
-        { name: { $regex: searchRegex } },
-        { region: { $in: regionSlugs } },
-        { locationType: { $in: typeSlugs } },
-      ],
-    });
+    locationsQuery.or([
+      { name: searchRegex },
+      ...(regionSlugs.length ? [{ region: { $in: regionSlugs } }] : []),
+      ...(typeSlugs.length ? [{ locationType: { $in: typeSlugs } }] : []),
+    ]);
   }
-  const finalFilter = andConditions.length > 0 ? { $and: andConditions } : {};
+
+  if (region) {
+    const regions = region
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    locationsQuery.where('region').in(regions);
+  }
+
+  if (type) {
+    const types = type
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    locationsQuery.where('locationType').in(types);
+  }
+  if (rate !== undefined) {
+    locationsQuery.where({ rate: { $gte: Number(rate) } });
+  }
 
   const sortDirection =
     sortBy === 'popularity' || sortOrder === 'desc' ? -1 : 1;
@@ -68,19 +76,20 @@ export const getAllLocations = async (req, res) => {
     ? 'feedbacksCount'
     : sortBy;
 
-  const [totalLocations, locations] = await Promise.all([
-    Location.clone().countDocuments(finalFilter),
-    Location.find(finalFilter)
-      .sort({ [sortField]: sortDirection })
+  const [totalItems, locations] = await Promise.all([
+    locationsQuery.clone().countDocuments(),
+    locationsQuery
       .skip(skip)
-      .limit(limit),
+      .limit(Number(limit))
+      .sort({ [sortField]: sortDirection }),
   ]);
-  const totalPages = Math.ceil(totalLocations / limit);
+
+  const totalPages = Math.ceil(totalItems / Number(limit));
 
   res.status(200).json({
-    page,
-    limit,
-    totalLocations,
+    page: Number(page),
+    limit: Number(limit),
+    totalItems,
     totalPages,
     locations,
   });
