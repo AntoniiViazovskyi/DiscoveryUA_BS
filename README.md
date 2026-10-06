@@ -142,7 +142,6 @@ erDiagram
     number rate
     string description
     string userName
-    boolean isApproved
   }
 ```
 
@@ -206,13 +205,13 @@ Base path: `/api`
 
 ### Feedbacks — `/api/feedbacks`
 
-| Method | Endpoint | Access  | Description                                                    |
-| ------ | -------- | ------- | -------------------------------------------------------------- |
-| `GET`  | `/`      | Public  | Approved reviews of a location (`locationId`, `page`, `limit`) |
-| `POST` | `/`      | Private | Create a review for a location                                 |
+| Method | Endpoint  | Access  | Description                                           |
+| ------ | --------- | ------- | ----------------------------------------------------- |
+| `GET`  | `/`       | Public  | Reviews of a location (`locationId`, `page`, `limit`) |
+| `GET`  | `/latest` | Public  | Seven latest reviews across locations                 |
+| `POST` | `/`       | Private | Create a review and update the location rating        |
 
-> [!NOTE]
-> New reviews are saved with `isApproved: false` and are returned by `GET /feedbacks` only after a maintainer approves them in the database.
+New reviews are visible immediately. The location's rating and feedback count are recalculated when a review is created.
 
 ### Uploads — `/api/uploads`
 

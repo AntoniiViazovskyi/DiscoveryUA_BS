@@ -5,7 +5,7 @@ const feedbackSchema = new Schema(
     rate: Number,
     description: String,
     userName: String,
-    isApproved: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: true },
   },
   { versionKey: false, timestamps: true },
 );

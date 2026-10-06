@@ -1,13 +1,12 @@
 import createHttpError from 'http-errors';
 
-import { Location } from '../models/location.js';
 import { Feedback } from '../models/feedback.js';
+import { Location } from '../models/location.js';
 
 import { createLocationFeedback } from '../services/feedbackService.js';
 
-export const getLatestApprovedFeedbacks = async (req, res) => {
+export const getLatestFeedbacks = async (req, res) => {
   const feedbacks = await Feedback.aggregate([
-    { $match: { isApproved: true } },
     {
       $addFields: {
         sortDate: { $ifNull: ['$createdAt', { $toDate: '$_id' }] },
@@ -29,7 +28,6 @@ export const getLatestApprovedFeedbacks = async (req, res) => {
         rate: 1,
         description: 1,
         userName: 1,
-        isApproved: 1,
         createdAt: { $ifNull: ['$createdAt', { $toDate: '$_id' }] },
         location: {
           _id: '$locations._id',
@@ -46,7 +44,10 @@ export const getLocationFeedbacks = async (req, res) => {
   const { locationId } = req.query;
   const { page, limit } = req.query;
 
-  const location = await Location.findById(locationId).populate('feedbacksId');
+  const location = await Location.findById(locationId).populate({
+    path: 'feedbacksId',
+    select: 'rate description userName createdAt updatedAt',
+  });
 
   if (!location) {
     throw createHttpError(404, 'Location not found');
@@ -56,9 +57,7 @@ export const getLocationFeedbacks = async (req, res) => {
     ? location.feedbacksId
     : [];
 
-  const visibleFeedbacks = feedbacks.filter(
-    (feedback) => feedback?.isApproved === true,
-  );
+  const visibleFeedbacks = feedbacks.filter(Boolean);
 
   const total = visibleFeedbacks.length;
   const totalPages = Math.ceil(total / limit);
@@ -83,10 +82,13 @@ export const addFeedback = async (req, res) => {
     throw createHttpError(422, 'User has no valid username');
   }
 
-  const feedback = await createLocationFeedback({
+  const result = await createLocationFeedback({
     ...req.body,
     userName,
   });
 
-  res.status(201).json({ data: feedback });
+  res.status(201).json({
+    data: result.feedback,
+    location: result.location,
+  });
 };
