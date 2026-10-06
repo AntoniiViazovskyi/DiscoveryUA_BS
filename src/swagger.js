@@ -143,7 +143,7 @@ export const swaggerSpec = {
           rate: { type: 'number', minimum: 1, maximum: 5 },
           description: { type: 'string' },
           userName: { type: 'string' },
-          isApproved: { type: 'boolean', default: false },
+          isApproved: { type: 'boolean', default: true },
           createdAt: { type: 'string', format: 'date-time' },
           updatedAt: { type: 'string', format: 'date-time' },
         },
@@ -667,10 +667,10 @@ export const swaggerSpec = {
     '/api/feedbacks/latest': {
       get: {
         tags: ['Feedbacks'],
-        summary: 'Get the 7 latest approved feedbacks across locations',
+        summary: 'Get the 7 latest feedbacks across locations',
         responses: {
           200: {
-            description: 'Latest approved feedbacks',
+            description: 'Latest feedbacks across locations',
             content: {
               'application/json': {
                 schema: {
@@ -709,7 +709,7 @@ export const swaggerSpec = {
     '/api/feedbacks': {
       get: {
         tags: ['Feedbacks'],
-        summary: 'Get approved feedbacks for a location',
+        summary: 'Get feedbacks for a location',
         parameters: [
           {
             name: 'locationId',
@@ -722,7 +722,7 @@ export const swaggerSpec = {
         ],
         responses: {
           200: {
-            description: 'Paginated approved feedbacks',
+            description: 'Paginated feedbacks',
             content: {
               'application/json': {
                 schema: {
@@ -772,13 +772,21 @@ export const swaggerSpec = {
         },
         responses: {
           201: {
-            description: 'Feedback created and awaiting approval',
+            description: 'Feedback created and location rating updated',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
                   properties: {
                     data: { $ref: '#/components/schemas/Feedback' },
+                    location: {
+                      type: 'object',
+                      properties: {
+                        _id: objectId,
+                        rate: { type: 'number', minimum: 1, maximum: 5 },
+                        feedbacksCount: { type: 'integer', minimum: 0 },
+                      },
+                    },
                   },
                 },
               },

@@ -3,7 +3,7 @@ import { Router } from 'express';
 
 import {
   addFeedback,
-  getLatestApprovedFeedbacks,
+  getLatestFeedbacks,
   getLocationFeedbacks,
 } from '../controllers/feedbackController.js';
 import { authenticate } from '../middleware/authenticate.js';
@@ -14,7 +14,7 @@ import {
 
 const feedbackRoutes = Router();
 
-feedbackRoutes.get('/latest', getLatestApprovedFeedbacks);
+feedbackRoutes.get('/latest', getLatestFeedbacks);
 feedbackRoutes.get('/', celebrate(getFeedbacksSchema), getLocationFeedbacks);
 
 feedbackRoutes.post(

@@ -18,13 +18,33 @@ export const createLocationFeedback = async (feedbackData) =>
       rate: feedbackData.rate,
       description: feedbackData.description,
       userName: feedbackData.userName,
-      isApproved: false,
+      isApproved: true,
     });
 
     await feedback.save({ session });
     location.feedbacksId.push(feedback._id);
-    location.feedbacksCount = location.feedbacksId.length;
+
+    const [feedbackStats] = await Feedback.aggregate([
+      { $match: { _id: { $in: location.feedbacksId } } },
+      {
+        $group: {
+          _id: null,
+          averageRate: { $avg: '$rate' },
+          feedbacksCount: { $sum: 1 },
+        },
+      },
+    ]).session(session);
+
+    location.feedbacksCount = feedbackStats?.feedbacksCount ?? 0;
+    location.rate = feedbackStats?.averageRate ?? 0;
     await location.save({ session });
 
-    return feedback;
+    return {
+      feedback,
+      location: {
+        _id: location._id,
+        rate: location.rate,
+        feedbacksCount: location.feedbacksCount,
+      },
+    };
   });
